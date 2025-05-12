@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    --background: 210 50% 98%;
+    --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -14,35 +14,35 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 210 100% 50%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 355.7 100% 97.3%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 145 40% 96.1%;
+    --secondary-foreground: 144.9 47.4% 11.2%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 145 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 100% 50%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 145 40% 96.1%;
+    --accent-foreground: 144.9 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 142 76% 36%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 210 100% 15%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 210 100% 50%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 210 100% 20%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 210 100% 25%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 144 70% 20%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 144 70% 25%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 144 70% 30%;
+    --sidebar-ring: 142 76% 46%;
   }
 
   .dark {
@@ -55,8 +55,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 100% 50%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 142 70% 50%;
+    --primary-foreground: 144.9 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -72,7 +72,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 142.5 76.1% 46.1%;
   }
 }
 
@@ -109,4 +109,29 @@
 
 .data-table tbody tr {
   @apply border-b hover:bg-gray-50;
+}
+
+/* Ajout des animations pour rendre l'UI plus rapide et fluide */
+.hover-scale {
+  @apply transition-transform duration-200 hover:scale-105;
+}
+
+.hover-lift {
+  @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-md;
+}
+
+.fade-in-bottom {
+  @apply opacity-0 translate-y-4;
+  animation: fadeInBottom 0.5s ease forwards;
+}
+
+@keyframes fadeInBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

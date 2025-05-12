@@ -15,8 +15,16 @@ import {
   SidebarGroupContent,
   SidebarProvider
 } from "@/components/ui/sidebar";
-import { useToast } from "@/components/ui/use-toast";
-import { Settings, LogOut, Users, FileText, Book, Calendar } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  Settings, 
+  LogOut, 
+  Users, 
+  FileText, 
+  Book, 
+  Calendar,
+  ChevronRight
+} from "lucide-react";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -31,18 +39,48 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     localStorage.removeItem("user");
     toast({
       title: "Déconnexion réussie",
+      variant: "success",
     });
     navigate("/");
   };
 
+  const menuItems = [
+    {
+      icon: <FileText className="h-5 w-5" />,
+      label: "Tableau de bord",
+      href: "/dashboard"
+    },
+    {
+      icon: <Calendar className="h-5 w-5" />,
+      label: "Examens",
+      href: "/dashboard/examens"
+    },
+    {
+      icon: <Book className="h-5 w-5" />,
+      label: "Notes",
+      href: "/dashboard/notes"
+    },
+    {
+      icon: <Users className="h-5 w-5" />,
+      label: "Étudiants",
+      href: "/dashboard/etudiants"
+    },
+    {
+      icon: <Settings className="h-5 w-5" />,
+      label: "Paramètres",
+      href: "/dashboard/parametres"
+    }
+  ];
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <Sidebar className={collapsed ? "w-16" : "w-64"}>
+        <Sidebar className={collapsed ? "w-16" : "w-64"} variant="floating">
           <SidebarHeader className="p-4 flex items-center justify-between">
             {!collapsed && (
-              <div className="font-bold text-sidebar-foreground text-lg">
-                ESTIM RESULTATS
+              <div className="font-bold text-sidebar-foreground text-lg flex items-center space-x-2">
+                <span className="bg-green-600 h-6 w-6 rounded-md flex items-center justify-center text-white">E</span>
+                <span>ESTIM</span>
               </div>
             )}
             <Button
@@ -51,79 +89,39 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               onClick={() => setCollapsed(!collapsed)}
               className="text-sidebar-foreground hover:bg-sidebar-accent"
             >
-              {collapsed ? "→" : "←"}
+              {collapsed ? <ChevronRight /> : "←"}
             </Button>
           </SidebarHeader>
+          
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
-                Gestion
+                Navigation
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a
-                        href="/dashboard"
-                        className="flex items-center space-x-2 py-2 px-4 rounded-md hover:bg-sidebar-accent transition-colors"
-                      >
-                        <FileText className="h-5 w-5" />
-                        {!collapsed && <span>Tableau de bord</span>}
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a
-                        href="/dashboard/examens"
-                        className="flex items-center space-x-2 py-2 px-4 rounded-md hover:bg-sidebar-accent transition-colors"
-                      >
-                        <Calendar className="h-5 w-5" />
-                        {!collapsed && <span>Examens</span>}
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a
-                        href="/dashboard/notes"
-                        className="flex items-center space-x-2 py-2 px-4 rounded-md hover:bg-sidebar-accent transition-colors"
-                      >
-                        <Book className="h-5 w-5" />
-                        {!collapsed && <span>Notes</span>}
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a
-                        href="/dashboard/etudiants"
-                        className="flex items-center space-x-2 py-2 px-4 rounded-md hover:bg-sidebar-accent transition-colors"
-                      >
-                        <Users className="h-5 w-5" />
-                        {!collapsed && <span>Étudiants</span>}
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a
-                        href="/dashboard/parametres"
-                        className="flex items-center space-x-2 py-2 px-4 rounded-md hover:bg-sidebar-accent transition-colors"
-                      >
-                        <Settings className="h-5 w-5" />
-                        {!collapsed && <span>Paramètres</span>}
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  {menuItems.map((item, index) => (
+                    <SidebarMenuItem key={index}>
+                      <SidebarMenuButton asChild tooltip={collapsed ? item.label : undefined}>
+                        <a
+                          href={item.href}
+                          className="flex items-center gap-2 py-2 px-4 rounded-md hover:bg-sidebar-accent transition-colors"
+                        >
+                          {item.icon}
+                          {!collapsed && <span>{item.label}</span>}
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
+          
           <SidebarFooter className="p-4">
             <Button
-              variant="ghost"
-              className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
+              variant="outline"
+              className="w-full justify-start bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-600 border-red-200"
               onClick={handleLogout}
             >
               <LogOut className="mr-2 h-4 w-4" />
@@ -131,8 +129,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </Button>
           </SidebarFooter>
         </Sidebar>
-        <main className="flex-1 overflow-auto">
-          <div className="p-6">{children}</div>
+        <main className="flex-1 overflow-auto bg-slate-50">
+          <div className="p-6 max-w-7xl mx-auto">{children}</div>
         </main>
       </div>
     </SidebarProvider>

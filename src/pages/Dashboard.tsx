@@ -1,143 +1,97 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Users, Book, Calendar, FileText } from "lucide-react";
+import { Users, Book, Calendar, FileText, ArrowRight } from "lucide-react";
 
 const Dashboard = () => {
-  // Mock data
-  const stats = [
+  // Fonctionnalités principales
+  const features = [
     {
-      title: "Total Étudiants",
-      value: "256",
-      icon: <Users className="h-6 w-6 text-estim-600" />,
+      title: "Gestion des Étudiants",
+      description: "Ajoutez, modifiez et consultez les informations des étudiants",
+      icon: <Users className="h-12 w-12 text-green-600" />,
+      href: "/dashboard/etudiants",
     },
     {
-      title: "Classes",
-      value: "8",
-      icon: <Book className="h-6 w-6 text-estim-600" />,
+      title: "Gestion des Examens",
+      description: "Créez et gérez les examens et devoirs",
+      icon: <Calendar className="h-12 w-12 text-green-600" />,
+      href: "/dashboard/examens",
     },
     {
-      title: "Examens",
-      value: "12",
-      icon: <Calendar className="h-6 w-6 text-estim-600" />,
+      title: "Gestion des Notes",
+      description: "Saisissez et consultez les notes des étudiants",
+      icon: <Book className="h-12 w-12 text-green-600" />,
+      href: "/dashboard/notes",
     },
     {
-      title: "Matières",
-      value: "24",
-      icon: <FileText className="h-6 w-6 text-estim-600" />,
+      title: "Paramètres",
+      description: "Configurer les semestres, les matières et les classes",
+      icon: <FileText className="h-12 w-12 text-green-600" />,
+      href: "/dashboard/parametres",
     },
   ];
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-8 animate-fade-in">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-800">Tableau de bord</h1>
           <div>
-            <Button className="bg-estim-600 hover:bg-estim-700">
-              Télécharger les relevés
-            </Button>
+            <h1 className="text-3xl font-bold text-gray-800">Tableau de bord</h1>
+            <p className="text-gray-500 mt-2">Bienvenue sur ESTIM Résultats</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">
-                  {stat.title}
-                </CardTitle>
-                <div className="p-2 bg-estim-50 rounded-md">{stat.icon}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {features.map((feature, index) => (
+            <Card key={index} className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-green-500">
+              <CardHeader className="flex flex-row items-start gap-4 pb-2">
+                <div className="p-2 bg-green-50 rounded-md">{feature.icon}</div>
+                <div>
+                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardDescription className="mt-1">{feature.description}</CardDescription>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stat.value}</div>
+              <CardContent className="pt-4">
+                <Button 
+                  asChild 
+                  className="w-full bg-green-600 hover:bg-green-700 text-white gap-2"
+                >
+                  <a href={feature.href}>
+                    Accéder <ArrowRight className="h-4 w-4" />
+                  </a>
+                </Button>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle>Derniers Examens</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Titre</th>
-                      <th>Date</th>
-                      <th>Classe</th>
-                      <th>Statut</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Examen Final</td>
-                      <td>15-06-2025</td>
-                      <td>Licence 3</td>
-                      <td><span className="px-2 py-1 bg-orange-100 text-orange-600 rounded-full text-xs">En attente</span></td>
-                    </tr>
-                    <tr>
-                      <td>Devoir Surveillé</td>
-                      <td>03-06-2025</td>
-                      <td>Master 1</td>
-                      <td><span className="px-2 py-1 bg-green-100 text-green-600 rounded-full text-xs">Complété</span></td>
-                    </tr>
-                    <tr>
-                      <td>Examen Partiel</td>
-                      <td>28-05-2025</td>
-                      <td>Licence 2</td>
-                      <td><span className="px-2 py-1 bg-green-100 text-green-600 rounded-full text-xs">Complété</span></td>
-                    </tr>
-                  </tbody>
-                </table>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="text-green-700">Statistiques rapides</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="p-4 bg-green-50 rounded-lg text-center">
+                <div className="text-3xl font-bold text-green-700">256</div>
+                <div className="text-sm text-gray-500">Étudiants</div>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle>Résultats Récents</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Classe</th>
-                      <th>Matière</th>
-                      <th>Moyenne</th>
-                      <th>Taux de réussite</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Licence 3</td>
-                      <td>Mathématiques</td>
-                      <td>12.5/20</td>
-                      <td>75%</td>
-                    </tr>
-                    <tr>
-                      <td>Master 1</td>
-                      <td>Informatique</td>
-                      <td>14.8/20</td>
-                      <td>86%</td>
-                    </tr>
-                    <tr>
-                      <td>Licence 2</td>
-                      <td>Physique</td>
-                      <td>11.2/20</td>
-                      <td>68%</td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div className="p-4 bg-green-50 rounded-lg text-center">
+                <div className="text-3xl font-bold text-green-700">8</div>
+                <div className="text-sm text-gray-500">Classes</div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="p-4 bg-green-50 rounded-lg text-center">
+                <div className="text-3xl font-bold text-green-700">12</div>
+                <div className="text-sm text-gray-500">Examens</div>
+              </div>
+              <div className="p-4 bg-green-50 rounded-lg text-center">
+                <div className="text-3xl font-bold text-green-700">24</div>
+                <div className="text-sm text-gray-500">Matières</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );
