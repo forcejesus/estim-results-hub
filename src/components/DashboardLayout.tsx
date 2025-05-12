@@ -40,7 +40,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     localStorage.removeItem("user");
     toast({
       title: "Déconnexion réussie",
-      variant: "default", // Changed from "success" to "default" to fix the TypeScript error
+      variant: "default",
     });
     navigate("/");
   };
@@ -49,27 +49,32 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     {
       icon: <LayoutDashboard className="h-5 w-5" />,
       label: "Tableau de bord",
-      href: "/dashboard"
-    },
-    {
-      icon: <Calendar className="h-5 w-5" />,
-      label: "Examens",
-      href: "/dashboard/examens"
-    },
-    {
-      icon: <Book className="h-5 w-5" />,
-      label: "Notes",
-      href: "/dashboard/notes"
+      href: "/dashboard",
+      isActive: window.location.pathname === "/dashboard"
     },
     {
       icon: <Users className="h-5 w-5" />,
       label: "Étudiants",
-      href: "/dashboard/etudiants"
+      href: "/dashboard/etudiants",
+      isActive: window.location.pathname === "/dashboard/etudiants"
+    },
+    {
+      icon: <Calendar className="h-5 w-5" />,
+      label: "Examens",
+      href: "/dashboard/examens",
+      isActive: window.location.pathname === "/dashboard/examens"
+    },
+    {
+      icon: <Book className="h-5 w-5" />,
+      label: "Notes",
+      href: "/dashboard/notes",
+      isActive: window.location.pathname === "/dashboard/notes"
     },
     {
       icon: <Settings className="h-5 w-5" />,
       label: "Paramètres",
-      href: "/dashboard/parametres"
+      href: "/dashboard/parametres",
+      isActive: window.location.pathname === "/dashboard/parametres"
     }
   ];
 
@@ -99,7 +104,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           
           <SidebarContent className="bg-white h-full pt-4">
             <SidebarGroup>
-              <SidebarGroupLabel className={collapsed ? "sr-only" : "px-4 text-sm font-semibold text-gray-600"}>
+              <SidebarGroupLabel className={collapsed ? "sr-only" : "px-4 text-sm font-semibold text-gray-500"}>
                 Menu Principal
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -110,12 +115,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                         <a
                           href={item.href}
                           className={`flex items-center gap-3 py-3 px-4 rounded-lg transition-colors ${
-                            window.location.pathname === item.href
+                            item.isActive
                               ? "bg-green-50 text-green-700 font-medium"
                               : "hover:bg-gray-50 text-gray-700"
                           }`}
                         >
-                          <div className={`${window.location.pathname === item.href ? "text-green-600" : "text-gray-500"}`}>
+                          <div className={`${item.isActive ? "text-green-600" : "text-gray-500"}`}>
                             {item.icon}
                           </div>
                           {!collapsed && <span>{item.label}</span>}

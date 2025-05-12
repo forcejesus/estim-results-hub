@@ -39,7 +39,7 @@ const Dashboard = () => {
         {/* Logo ESTIM centré */}
         <div className="flex justify-center mb-8">
           <img 
-            src="/lovable-uploads/9148d22a-9c29-4ee3-8fda-b91c5ff530e9.png" 
+            src="/lovable-uploads/242a4b63-1084-4040-8917-68a62dcc5342.png" 
             alt="ESTIM Logo" 
             className="h-48 w-auto animate-fade-in"
           />
