@@ -39,7 +39,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     localStorage.removeItem("user");
     toast({
       title: "Déconnexion réussie",
-      variant: "success",
+      variant: "default", // Changed from "success" to "default" to fix the TypeScript error
     });
     navigate("/");
   };
