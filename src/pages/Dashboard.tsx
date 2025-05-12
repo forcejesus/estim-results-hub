@@ -36,6 +36,15 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="space-y-8 animate-fade-in">
+        {/* Logo ESTIM centré */}
+        <div className="flex justify-center mb-8">
+          <img 
+            src="/lovable-uploads/9148d22a-9c29-4ee3-8fda-b91c5ff530e9.png" 
+            alt="ESTIM Logo" 
+            className="h-48 w-auto animate-fade-in"
+          />
+        </div>
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Tableau de bord</h1>
@@ -45,7 +54,7 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {features.map((feature, index) => (
-            <Card key={index} className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-green-500">
+            <Card key={index} className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-green-500 hover:translate-y-[-5px]">
               <CardHeader className="flex flex-row items-start gap-4 pb-2">
                 <div className="p-2 bg-green-50 rounded-md">{feature.icon}</div>
                 <div>

@@ -23,7 +23,8 @@ import {
   FileText, 
   Book, 
   Calendar,
-  ChevronRight
+  ChevronRight,
+  LayoutDashboard
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -46,7 +47,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   const menuItems = [
     {
-      icon: <FileText className="h-5 w-5" />,
+      icon: <LayoutDashboard className="h-5 w-5" />,
       label: "Tableau de bord",
       href: "/dashboard"
     },
@@ -74,29 +75,32 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <Sidebar className={collapsed ? "w-16" : "w-64"} variant="floating">
-          <SidebarHeader className="p-4 flex items-center justify-between">
+      <div className="min-h-screen flex w-full bg-slate-100">
+        <Sidebar 
+          className={collapsed ? "w-16" : "w-72"} 
+          variant="floating"
+        >
+          <SidebarHeader className="p-4 flex items-center justify-between bg-white border-b">
             {!collapsed && (
               <div className="font-bold text-sidebar-foreground text-lg flex items-center space-x-2">
-                <span className="bg-green-600 h-6 w-6 rounded-md flex items-center justify-center text-white">E</span>
-                <span>ESTIM</span>
+                <span className="bg-green-600 h-8 w-8 rounded-md flex items-center justify-center text-white font-bold">E</span>
+                <span>ESTIM Admin</span>
               </div>
             )}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setCollapsed(!collapsed)}
-              className="text-sidebar-foreground hover:bg-sidebar-accent"
+              className="text-gray-600 hover:bg-gray-100"
             >
               {collapsed ? <ChevronRight /> : "←"}
             </Button>
           </SidebarHeader>
           
-          <SidebarContent>
+          <SidebarContent className="bg-white h-full pt-4">
             <SidebarGroup>
-              <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
-                Navigation
+              <SidebarGroupLabel className={collapsed ? "sr-only" : "px-4 text-sm font-semibold text-gray-600"}>
+                Menu Principal
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -105,9 +109,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       <SidebarMenuButton asChild tooltip={collapsed ? item.label : undefined}>
                         <a
                           href={item.href}
-                          className="flex items-center gap-2 py-2 px-4 rounded-md hover:bg-sidebar-accent transition-colors"
+                          className={`flex items-center gap-3 py-3 px-4 rounded-lg transition-colors ${
+                            window.location.pathname === item.href
+                              ? "bg-green-50 text-green-700 font-medium"
+                              : "hover:bg-gray-50 text-gray-700"
+                          }`}
                         >
-                          {item.icon}
+                          <div className={`${window.location.pathname === item.href ? "text-green-600" : "text-gray-500"}`}>
+                            {item.icon}
+                          </div>
                           {!collapsed && <span>{item.label}</span>}
                         </a>
                       </SidebarMenuButton>
@@ -118,10 +128,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </SidebarGroup>
           </SidebarContent>
           
-          <SidebarFooter className="p-4">
+          <SidebarFooter className="p-4 bg-white border-t">
             <Button
               variant="outline"
-              className="w-full justify-start bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-600 border-red-200"
+              className="w-full justify-start hover:bg-red-50 text-gray-700 hover:text-red-600 border-gray-200"
               onClick={handleLogout}
             >
               <LogOut className="mr-2 h-4 w-4" />
@@ -129,7 +139,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </Button>
           </SidebarFooter>
         </Sidebar>
-        <main className="flex-1 overflow-auto bg-slate-50">
+        <main className="flex-1 overflow-auto">
           <div className="p-6 max-w-7xl mx-auto">{children}</div>
         </main>
       </div>
