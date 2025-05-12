@@ -107,7 +107,7 @@ const DashboardLayout = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 p-4"
+            className="flex items-center justify-between p-4"
           >
             {!collapsed && <div className="flex items-center gap-2">
                 <motion.img 
@@ -118,7 +118,7 @@ const DashboardLayout = ({
                   alt="ESTIM Logo" 
                   className="h-8 w-auto"
                 />
-                <span className="font-semibold text-green-700 dark:text-green-500">ESTIM</span>
+                <span className="font-semibold text-gray-800 dark:text-gray-200">ESTIM</span>
               </div>}
             <Button 
               variant="ghost" 
@@ -148,11 +148,11 @@ const DashboardLayout = ({
                         transition={{ duration: 0.2 }}
                       >
                         <SidebarMenuButton asChild tooltip={collapsed ? item.label : undefined}>
-                          <a href={item.href} className={`flex items-center gap-3 py-3 px-4 rounded-lg transition-all duration-200 ${item.isActive ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium" : "hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"}`}>
+                          <a href={item.href} className={`flex items-center gap-3 py-3 px-4 rounded-lg transition-all duration-200 ${item.isActive ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium" : "hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"}`}>
                             <motion.div
                               whileHover={{ rotate: item.isActive ? 0 : 5 }}
                               transition={{ duration: 0.2 }}
-                              className={`${item.isActive ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
+                              className={`${item.isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}
                             >
                               {item.icon}
                             </motion.div>
