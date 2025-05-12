@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -51,6 +52,18 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				estim: {
+					50: '#e6f2ff',
+					100: '#cce5ff',
+					200: '#99cbff',
+					300: '#66b0ff',
+					400: '#3396ff',
+					500: '#007bff',
+					600: '#0062cc',
+					700: '#004999',
+					800: '#003166',
+					900: '#001833',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
