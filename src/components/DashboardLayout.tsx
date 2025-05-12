@@ -1,5 +1,5 @@
 
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +24,9 @@ import {
   Book, 
   Calendar,
   ChevronRight,
-  LayoutDashboard
+  ChevronLeft,
+  LayoutDashboard,
+  BookOpen,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -36,6 +38,19 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { toast } = useToast();
   const [collapsed, setCollapsed] = useState(false);
 
+  // Get saved collapsed state from localStorage or default to false
+  useEffect(() => {
+    const savedState = localStorage.getItem("sidebarCollapsed");
+    if (savedState) {
+      setCollapsed(savedState === "true");
+    }
+  }, []);
+
+  // Save collapsed state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", collapsed.toString());
+  }, [collapsed]);
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     toast({
@@ -45,67 +60,75 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     navigate("/");
   };
 
+  // Active path detection
+  const isActive = (path: string) => {
+    return window.location.pathname === path;
+  };
+
   const menuItems = [
     {
       icon: <LayoutDashboard className="h-5 w-5" />,
       label: "Tableau de bord",
       href: "/dashboard",
-      isActive: window.location.pathname === "/dashboard"
+      isActive: isActive("/dashboard")
     },
     {
       icon: <Users className="h-5 w-5" />,
       label: "Étudiants",
       href: "/dashboard/etudiants",
-      isActive: window.location.pathname === "/dashboard/etudiants"
+      isActive: isActive("/dashboard/etudiants")
     },
     {
       icon: <Calendar className="h-5 w-5" />,
       label: "Examens",
       href: "/dashboard/examens",
-      isActive: window.location.pathname === "/dashboard/examens"
+      isActive: isActive("/dashboard/examens")
     },
     {
-      icon: <Book className="h-5 w-5" />,
+      icon: <BookOpen className="h-5 w-5" />,
       label: "Notes",
       href: "/dashboard/notes",
-      isActive: window.location.pathname === "/dashboard/notes"
+      isActive: isActive("/dashboard/notes")
     },
     {
       icon: <Settings className="h-5 w-5" />,
       label: "Paramètres",
       href: "/dashboard/parametres",
-      isActive: window.location.pathname === "/dashboard/parametres"
+      isActive: isActive("/dashboard/parametres")
     }
   ];
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-slate-100">
+      <div className="min-h-screen flex w-full bg-gray-50">
         <Sidebar 
-          className={collapsed ? "w-16" : "w-72"} 
-          variant="floating"
+          className={`${collapsed ? "w-16" : "w-72"} border-r shadow-sm bg-white transition-all duration-200`}
         >
-          <SidebarHeader className="p-4 flex items-center justify-between bg-white border-b">
+          <SidebarHeader className="p-4 flex items-center justify-between border-b">
             {!collapsed && (
-              <div className="font-bold text-sidebar-foreground text-lg flex items-center space-x-2">
-                <span className="bg-green-600 h-8 w-8 rounded-md flex items-center justify-center text-white font-bold">E</span>
-                <span>ESTIM Admin</span>
+              <div className="flex items-center gap-2">
+                <img 
+                  src="/lovable-uploads/242a4b63-1084-4040-8917-68a62dcc5342.png"
+                  alt="ESTIM Logo"
+                  className="h-8 w-auto"
+                />
+                <span className="font-semibold text-green-700">ESTIM Admin</span>
               </div>
             )}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setCollapsed(!collapsed)}
-              className="text-gray-600 hover:bg-gray-100"
+              className="text-gray-600 hover:bg-gray-100 rounded-full"
             >
-              {collapsed ? <ChevronRight /> : "←"}
+              {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </Button>
           </SidebarHeader>
           
-          <SidebarContent className="bg-white h-full pt-4">
+          <SidebarContent className="pt-6">
             <SidebarGroup>
-              <SidebarGroupLabel className={collapsed ? "sr-only" : "px-4 text-sm font-semibold text-gray-500"}>
-                Menu Principal
+              <SidebarGroupLabel className={collapsed ? "sr-only" : "px-4 text-sm font-medium text-gray-400 mb-2"}>
+                NAVIGATION
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -114,7 +137,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       <SidebarMenuButton asChild tooltip={collapsed ? item.label : undefined}>
                         <a
                           href={item.href}
-                          className={`flex items-center gap-3 py-3 px-4 rounded-lg transition-colors ${
+                          className={`flex items-center gap-3 py-3 px-4 rounded-lg transition-all duration-200 ${
                             item.isActive
                               ? "bg-green-50 text-green-700 font-medium"
                               : "hover:bg-gray-50 text-gray-700"
@@ -133,13 +156,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </SidebarGroup>
           </SidebarContent>
           
-          <SidebarFooter className="p-4 bg-white border-t">
+          <SidebarFooter className="p-4 border-t mt-auto">
             <Button
               variant="outline"
-              className="w-full justify-start hover:bg-red-50 text-gray-700 hover:text-red-600 border-gray-200"
+              className={`${collapsed ? "justify-center p-2" : "justify-start"} w-full hover:bg-red-50 text-gray-700 hover:text-red-600 border-gray-200`}
               onClick={handleLogout}
             >
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className={`${collapsed ? "" : "mr-2"} h-4 w-4`} />
               {!collapsed && "Déconnexion"}
             </Button>
           </SidebarFooter>
