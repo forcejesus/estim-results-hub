@@ -144,7 +144,7 @@ export const exportEtudiantsToExcel = (etudiants: Etudiant[], classes: Classe[])
   XLSX.writeFile(workbook, `etudiants_${date}.xlsx`);
 };
 
-// Nouvelle fonction: Exporter les étudiants pour les notes
+// Exporter les étudiants pour les notes
 export const exportEtudiantsForNotes = (etudiants: Etudiant[], classes: Classe[]): void => {
   // Préparer les données pour l'export (format simplifié pour les notes)
   const exportData = etudiants.map(etudiant => {

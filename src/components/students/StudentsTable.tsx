@@ -3,9 +3,22 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
-import { Edit, Trash2 } from "lucide-react";
-import { Etudiant, Classe } from "@/services/etudiantService";
+import { Edit, Trash2, MoreVertical, FileSpreadsheet, Plus, FileUp, FileDown } from "lucide-react";
+import { Etudiant, Classe, exportEtudiantsToExcel, exportEtudiantsForNotes } from "@/services/etudiantService";
 import { motion } from "framer-motion";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import AddStudentDialog from "./AddStudentDialog";
+import ImportStudentDialog from "./ImportStudentDialog";
 
 interface StudentsTableProps {
   students: Etudiant[];
@@ -20,8 +33,68 @@ const StudentsTable = ({ students, classes, isLoading }: StudentsTableProps) => 
     return foundClass ? foundClass.nom : "";
   };
 
+  // Handlers for exports
+  const handleExportComplete = () => {
+    exportEtudiantsToExcel(students, classes);
+  };
+
+  const handleExportForNotes = () => {
+    exportEtudiantsForNotes(students, classes);
+  };
+
   return (
     <div className="overflow-x-auto">
+      <div className="flex justify-end mb-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              Actions
+              <MoreVertical className="w-4 h-4 ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-white">
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="flex items-center">
+                <FileDown className="w-4 h-4 mr-2" />
+                <span>Exportation</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="bg-white">
+                <DropdownMenuItem onClick={handleExportForNotes} className="cursor-pointer">
+                  <FileDown className="w-4 h-4 mr-2" />
+                  <span>Exporter pour les notes</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportComplete} className="cursor-pointer">
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                  <span>Exportation complète</span>
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
+                  <FileUp className="w-4 h-4 mr-2" />
+                  <span>Importation</span>
+                </DropdownMenuItem>
+              </DialogTrigger>
+              <ImportStudentDialog classes={classes} />
+            </Dialog>
+
+            <DropdownMenuSeparator />
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
+                  <Plus className="w-4 h-4 mr-2" />
+                  <span>Ajouter un étudiant</span>
+                </DropdownMenuItem>
+              </DialogTrigger>
+              <AddStudentDialog classes={classes} />
+            </Dialog>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
       {isLoading ? (
         <div className="text-center py-10">
           <p>Chargement des données...</p>

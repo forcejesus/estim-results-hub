@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FileSpreadsheet } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { importEtudiantsFromFile, Classe } from "@/services/etudiantService";
@@ -61,49 +61,41 @@ const ImportStudentDialog = ({ classes }: ImportStudentDialogProps) => {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <FileSpreadsheet className="h-4 w-4 mr-2" />
-          Importer Excel
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Importer des étudiants</DialogTitle>
-          <DialogDescription>
-            Importez une liste d'étudiants à partir d'un fichier Excel.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleImportStudents}>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="excel-file">Fichier Excel</Label>
-              <Input
-                id="excel-file"
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                onChange={handleFileChange}
-                required
-              />
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              <p>Format attendu: colonnes "nom_prenom", "classe"</p>
-              <p>La colonne classe doit correspondre au nom exact de la classe.</p>
-            </div>
+    <DialogContent className="sm:max-w-[425px]">
+      <DialogHeader>
+        <DialogTitle>Importer des étudiants</DialogTitle>
+        <DialogDescription>
+          Importez une liste d'étudiants à partir d'un fichier Excel.
+        </DialogDescription>
+      </DialogHeader>
+      <form onSubmit={handleImportStudents}>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="excel-file">Fichier Excel</Label>
+            <Input
+              id="excel-file"
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleFileChange}
+              required
+            />
           </div>
-          <DialogFooter>
-            <Button 
-              type="submit" 
-              className="bg-blue-600 hover:bg-blue-700"
-              disabled={importStudentsMutation.isPending}
-            >
-              {importStudentsMutation.isPending ? "Importation..." : "Importer"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            <p>Format attendu: colonnes "nom_prenom", "classe"</p>
+            <p>La colonne classe doit correspondre au nom exact de la classe.</p>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button 
+            type="submit" 
+            className="bg-blue-600 hover:bg-blue-700"
+            disabled={importStudentsMutation.isPending}
+          >
+            {importStudentsMutation.isPending ? "Importation..." : "Importer"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
   );
 };
 
