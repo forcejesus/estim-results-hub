@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -27,6 +28,8 @@ const StudentsFilter = ({
   filteredStudents
 }: StudentsFilterProps) => {
   const { toast } = useToast();
+  // Add state for controlling the ImportStudentDialog
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   const handleExportExcel = () => {
     try {
@@ -80,7 +83,14 @@ const StudentsFilter = ({
       
       <div className="flex gap-2">
         <AddStudentDialog classes={classes} />
-        <ImportStudentDialog classes={classes} />
+        <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+          Importer
+        </Button>
+        <ImportStudentDialog 
+          classes={classes} 
+          open={importDialogOpen} 
+          onOpenChange={setImportDialogOpen}
+        />
         
         <Button variant="outline" onClick={handleExportExcel}>
           <Download className="h-4 w-4 mr-2" />
