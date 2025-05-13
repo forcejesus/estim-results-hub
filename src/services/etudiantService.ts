@@ -120,7 +120,28 @@ export const importEtudiantsFromFile = async (file: File, classes: Classe[]): Pr
   });
 };
 
-// Exporter les étudiants en Excel
+// Exporter les données pour saisie en Excel
+export const exportEtudiantsSaisieExcel = (etudiants: Etudiant[]): void => {
+  // Préparer les données pour l'export de saisie
+  const exportData = etudiants.map(etudiant => {
+    return {
+      'Nom et Prénom': etudiant.nom_prenom,
+      'Matricule': etudiant.matricule,
+      'Note': '' // Colonne vide à remplir
+    };
+  });
+  
+  // Créer une nouvelle feuille de calcul
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'SaisieNotes');
+  
+  // Générer et télécharger le fichier
+  const date = new Date().toISOString().split('T')[0];
+  XLSX.writeFile(workbook, `saisie_notes_${date}.xlsx`);
+};
+
+// Exporter les étudiants en Excel (toutes les colonnes visibles)
 export const exportEtudiantsToExcel = (etudiants: Etudiant[], classes: Classe[]): void => {
   // Préparer les données pour l'export
   const exportData = etudiants.map(etudiant => {

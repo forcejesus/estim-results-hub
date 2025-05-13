@@ -8,8 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useToast } from "@/hooks/use-toast";
-import { Download, FileSpreadsheet, Trash2, Edit, Plus } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { Download, FileSpreadsheet, Trash2, Edit, Plus, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { 
   fetchEtudiants, 
@@ -17,12 +17,19 @@ import {
   addEtudiant, 
   importEtudiantsFromFile, 
   exportEtudiantsToExcel,
+  exportEtudiantsSaisieExcel,
   Etudiant,
   Classe
 } from "@/services/etudiantService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 const Etudiants = () => {
   const { toast } = useToast();
@@ -186,6 +193,23 @@ const Etudiants = () => {
     }
   };
 
+  const handleExportSaisieExcel = () => {
+    try {
+      exportEtudiantsSaisieExcel(filteredStudents);
+      toast({
+        title: "Exportation Excel",
+        description: "Le fichier de saisie des notes a été exporté.",
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'exportation:', error);
+      toast({
+        title: "Erreur d'exportation",
+        description: "Impossible d'exporter les données. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Get class name by ID
   const getClassNameById = (id: number): string => {
     const foundClass = classes.find(c => c.id === id);
@@ -241,113 +265,141 @@ const Etudiants = () => {
               </div>
               
               <div className="flex gap-2">
-                <Dialog>
-                  <DialogTrigger asChild>
+                {/* Premier dropdown: Ajouter les étudiants */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button className="bg-blue-600 hover:bg-blue-700">
                       <Plus className="h-4 w-4 mr-2" />
-                      Ajouter un étudiant
+                      Ajouter les étudiants
+                      <ChevronDown className="h-4 w-4 ml-1" />
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Ajouter un nouvel étudiant</DialogTitle>
-                      <DialogDescription>
-                        Saisissez les informations du nouvel étudiant.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleAddStudent}>
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="student-nom">Nom et Prénom</Label>
-                          <Input
-                            id="student-nom"
-                            value={newStudentNom}
-                            onChange={(e) => setNewStudentNom(e.target.value)}
-                            placeholder="MAMBOU Marcel"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="student-class">Classe</Label>
-                          <Select
-                            value={newStudentClass}
-                            onValueChange={setNewStudentClass}
-                            required
-                          >
-                            <SelectTrigger id="student-class">
-                              <SelectValue placeholder="Sélectionner une classe" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {classes.map((cls) => (
-                                <SelectItem key={cls.id} value={cls.id.toString()}>
-                                  {cls.nom} ({cls.niveau})
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button 
-                          type="submit" 
-                          className="bg-blue-600 hover:bg-blue-700"
-                          disabled={addStudentMutation.isPending}
-                        >
-                          {addStudentMutation.isPending ? "Ajout en cours..." : "Ajouter"}
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-                
-                <Dialog>
-                  <DialogTrigger asChild>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Ajouter un étudiant
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Ajouter un nouvel étudiant</DialogTitle>
+                          <DialogDescription>
+                            Saisissez les informations du nouvel étudiant.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleAddStudent}>
+                          <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="student-nom">Nom et Prénom</Label>
+                              <Input
+                                id="student-nom"
+                                value={newStudentNom}
+                                onChange={(e) => setNewStudentNom(e.target.value)}
+                                placeholder="MAMBOU Marcel"
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="student-class">Classe</Label>
+                              <Select
+                                value={newStudentClass}
+                                onValueChange={setNewStudentClass}
+                                required
+                              >
+                                <SelectTrigger id="student-class">
+                                  <SelectValue placeholder="Sélectionner une classe" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {classes.map((cls) => (
+                                    <SelectItem key={cls.id} value={cls.id.toString()}>
+                                      {cls.nom} ({cls.niveau})
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button 
+                              type="submit" 
+                              className="bg-blue-600 hover:bg-blue-700"
+                              disabled={addStudentMutation.isPending}
+                            >
+                              {addStudentMutation.isPending ? "Ajout en cours..." : "Ajouter"}
+                            </Button>
+                          </DialogFooter>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <FileSpreadsheet className="mr-2 h-4 w-4" />
+                          Importer un fichier Excel
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Importer des étudiants</DialogTitle>
+                          <DialogDescription>
+                            Importez une liste d'étudiants à partir d'un fichier Excel.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleImportStudents}>
+                          <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="excel-file">Fichier Excel</Label>
+                              <Input
+                                id="excel-file"
+                                type="file"
+                                accept=".xlsx,.xls,.csv"
+                                onChange={handleFileChange}
+                                required
+                              />
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              <p>Format attendu: colonnes "nom_prenom", "classe"</p>
+                              <p>La colonne classe doit correspondre au nom exact de la classe.</p>
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button 
+                              type="submit" 
+                              className="bg-blue-600 hover:bg-blue-700"
+                              disabled={importStudentsMutation.isPending}
+                            >
+                              {importStudentsMutation.isPending ? "Importation..." : "Importer"}
+                            </Button>
+                          </DialogFooter>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Second dropdown: Exporter les données */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button variant="outline">
-                      <FileSpreadsheet className="h-4 w-4 mr-2" />
-                      Importer Excel
+                      <Download className="h-4 w-4 mr-2" />
+                      Exporter les données
+                      <ChevronDown className="h-4 w-4 ml-1" />
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Importer des étudiants</DialogTitle>
-                      <DialogDescription>
-                        Importez une liste d'étudiants à partir d'un fichier Excel.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleImportStudents}>
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="excel-file">Fichier Excel</Label>
-                          <Input
-                            id="excel-file"
-                            type="file"
-                            accept=".xlsx,.xls,.csv"
-                            onChange={handleFileChange}
-                            required
-                          />
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          <p>Format attendu: colonnes "nom_prenom", "classe"</p>
-                          <p>La colonne classe doit correspondre au nom exact de la classe.</p>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button 
-                          type="submit" 
-                          className="bg-blue-600 hover:bg-blue-700"
-                          disabled={importStudentsMutation.isPending}
-                        >
-                          {importStudentsMutation.isPending ? "Importation..." : "Importer"}
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-                
-                <Button variant="outline" onClick={handleExportExcel}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Exporter
-                </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={handleExportSaisieExcel}>
+                      <FileSpreadsheet className="mr-2 h-4 w-4" />
+                      Données de saisie
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleExportExcel}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Exporter le tableau
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 
