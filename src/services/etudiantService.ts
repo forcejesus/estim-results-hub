@@ -44,7 +44,7 @@ export const fetchClasses = async (): Promise<Classe[]> => {
 // Changer le statut d'un étudiant
 export const toggleStudentStatus = async (matricule: string): Promise<Etudiant> => {
   try {
-    const response = await api.get(`/api/etudiants/${matricule}/toggle/`);
+    const response = await api.post(`/api/etudiants/${matricule}/toggle/`);
     return response.data;
   } catch (error) {
     console.error('Erreur lors du changement de statut:', error);
