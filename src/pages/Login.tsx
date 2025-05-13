@@ -1,42 +1,48 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { login } from "@/utils/auth";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  // Get the redirect path from location state or default to dashboard
+  const from = (location.state as { from: string })?.from || "/dashboard";
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // This is a mock login - in a real app, you would connect to backend authentication
-    setTimeout(() => {
-      // Mock credentials for demo purposes
-      if (email === "admin@estim.com" && password === "password") {
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue sur ESTIM RESULTATS",
-        });
-        localStorage.setItem("user", JSON.stringify({ email, role: "admin" }));
-        navigate("/dashboard");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Erreur de connexion",
-          description: "Email ou mot de passe incorrect",
-        });
-      }
+    try {
+      await login(username, password);
+      
+      toast({
+        title: "Connexion réussie",
+        description: "Bienvenue sur ESTIM RESULTATS",
+      });
+      
+      // Redirect to the intended destination
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.error("Login error:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur de connexion",
+        description: "Nom d'utilisateur ou mot de passe incorrect",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -57,13 +63,13 @@ const Login = () => {
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Nom d'utilisateur</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="exemple@estim.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  placeholder="votre nom d'utilisateur"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
@@ -94,11 +100,6 @@ const Login = () => {
             </CardFooter>
           </form>
         </Card>
-        
-        <div className="text-center mt-6 text-sm text-gray-600">
-          <p>Utilisez les identifiants suivants pour la démo:</p>
-          <p>Email: admin@estim.com | Mot de passe: password</p>
-        </div>
       </div>
     </div>
   );

@@ -3,8 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { isAuthenticated, initializeAuth } from "./utils/auth";
 
 // Pages
 import Login from "./pages/Login";
@@ -17,10 +18,11 @@ import NotFound from "./pages/NotFound";
 
 // Auth guard
 const AuthGuard = ({ children }: { children: React.ReactNode }) => {
-  const user = localStorage.getItem("user");
+  const location = useLocation();
   
-  if (!user) {
-    return <Navigate to="/" replace />;
+  if (!isAuthenticated()) {
+    // Redirect to login page with the intended destination
+    return <Navigate to="/" state={{ from: location.pathname }} replace />;
   }
   
   return <>{children}</>;
@@ -29,12 +31,9 @@ const AuthGuard = ({ children }: { children: React.ReactNode }) => {
 const queryClient = new QueryClient();
 
 const App = () => {
-  // For demo purposes, clear local storage on first load
+  // Initialize authentication on app load
   useEffect(() => {
-    // Only clear on DEV to make it easier to test
-    if (import.meta.env.DEV) {
-      localStorage.removeItem("user");
-    }
+    initializeAuth();
   }, []);
 
   return (

@@ -1,4 +1,3 @@
-
 import { useState, ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarMenu, SidebarMenuItem, S
 import { useToast } from "@/hooks/use-toast";
 import { Settings, LogOut, Users, Calendar, ChevronRight, ChevronLeft, LayoutDashboard, BookOpen, Moon, Sun } from "lucide-react";
 import { motion } from "framer-motion";
+import { logout, getUserInfo } from "@/utils/auth";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -16,11 +16,10 @@ const DashboardLayout = ({
   children
 }: DashboardLayoutProps) => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [collapsed, setCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [username, setUsername] = useState<string | undefined>("");
 
   // Get saved collapsed state and dark mode preference from localStorage
   useEffect(() => {
@@ -36,6 +35,12 @@ const DashboardLayout = ({
       } else {
         document.documentElement.classList.remove("dark");
       }
+    }
+
+    // Get username from JWT token
+    const userInfo = getUserInfo();
+    if (userInfo) {
+      setUsername(userInfo.username);
     }
   }, []);
 
@@ -61,12 +66,11 @@ const DashboardLayout = ({
   };
   
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    logout();
     toast({
       title: "Déconnexion réussie",
       variant: "default"
     });
-    navigate("/");
   };
 
   // Active path detection
@@ -100,10 +104,12 @@ const DashboardLayout = ({
     href: "/dashboard/parametres",
     isActive: isActive("/dashboard/parametres")
   }];
+
   
   return <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900">
         <Sidebar className={`${collapsed ? "w-20" : "w-72"} border-r border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 transition-all duration-300 ease-in-out shadow-sm`}>
+          
           <motion.div initial={{
           opacity: 0
         }} animate={{
@@ -173,8 +179,28 @@ const DashboardLayout = ({
               </SidebarGroupContent>
             </SidebarGroup>
             
+            {/* User info */}
+            {!collapsed && username && (
+              <motion.div className="px-4 pb-4 flex items-center gap-3" initial={{
+                opacity: 0,
+                y: 20
+              }} animate={{
+                opacity: 1,
+                y: 0
+              }} transition={{
+                duration: 0.3,
+                delay: 0.3
+              }}>
+                <div className="flex items-center justify-between w-full px-3 py-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                  <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                    Connecté en tant que: <span className="font-bold">{username}</span>
+                  </span>
+                </div>
+              </motion.div>
+            )}
+            
             {/* Dark mode toggle */}
-            {!collapsed && <motion.div className="px-4 pt-8 flex items-center gap-3" initial={{
+            {!collapsed && <motion.div className="px-4 pt-2 flex items-center gap-3" initial={{
             opacity: 0,
             y: 20
           }} animate={{
