@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +8,24 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import DashboardLayout from "@/components/DashboardLayout";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Semestre,
+  Evaluation,
+  Matiere,
+  fetchSemestres,
+  fetchExamens,
+  fetchDevoirs,
+  fetchMatieres,
+  createExamen,
+  createDevoir
+} from "@/services/examenService";
 
 const Examens = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // State variables
   const [examType, setExamType] = useState("examen");
   const [examTitle, setExamTitle] = useState("");
   const [examDate, setExamDate] = useState("");
@@ -19,66 +34,142 @@ const Examens = () => {
   const [examSubject, setExamSubject] = useState("");
   const [filterSemester, setFilterSemester] = useState("all");
   const [filterType, setFilterType] = useState("all");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Mock data
-  const examens = [
-    { id: 1, type: "examen", titre: "Examen Final", date: "2025-06-15", semestre: "Semestre 2", classe: "Licence 3", matiere: "Mathématiques" },
-    { id: 2, type: "devoir", titre: "Devoir Surveillé", date: "2025-06-03", semestre: "Semestre 2", classe: "Master 1", matiere: "Informatique" },
-    { id: 3, type: "examen", titre: "Examen Partiel", date: "2025-05-28", semestre: "Semestre 2", classe: "Licence 2", matiere: "Physique" },
-    { id: 4, type: "devoir", titre: "TP Noté", date: "2025-05-20", semestre: "Semestre 2", classe: "Licence 3", matiere: "Informatique" },
-    { id: 5, type: "examen", titre: "Examen Intermédiaire", date: "2025-04-10", semestre: "Semestre 1", classe: "Master 2", matiere: "Économie" },
-  ];
+  // Fetch data using React Query
+  const { data: semestres = [] } = useQuery({
+    queryKey: ['semestres'],
+    queryFn: fetchSemestres
+  });
   
-  const semestres = [
-    { id: 1, nom: "Semestre 1" },
-    { id: 2, nom: "Semestre 2" },
-  ];
+  const { data: examens = [] } = useQuery({
+    queryKey: ['examens'],
+    queryFn: fetchExamens
+  });
   
-  const classes = [
-    { id: 1, nom: "Licence 1" },
-    { id: 2, nom: "Licence 2" },
-    { id: 3, nom: "Licence 3" },
-    { id: 4, nom: "Master 1" },
-    { id: 5, nom: "Master 2" },
-  ];
+  const { data: devoirs = [] } = useQuery({
+    queryKey: ['devoirs'],
+    queryFn: fetchDevoirs
+  });
   
-  const matieres = [
-    { id: 1, nom: "Mathématiques", classe: "Licence 3" },
-    { id: 2, nom: "Physique", classe: "Licence 3" },
-    { id: 3, nom: "Informatique", classe: "Licence 3" },
-    { id: 4, nom: "Anglais", classe: "Licence 3" },
-    { id: 5, nom: "Économie", classe: "Master 1" },
-    { id: 6, nom: "Informatique", classe: "Master 1" },
-  ];
+  const { data: matieres = [] } = useQuery({
+    queryKey: ['matieres'],
+    queryFn: fetchMatieres
+  });
 
-  const handleCreateExam = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    toast({
-      title: examType === "examen" ? "Examen créé" : "Devoir créé",
-      description: `${examTitle} a été programmé pour le ${examDate}.`,
-    });
-    
+  // Create mutations
+  const createExamenMutation = useMutation({
+    mutationFn: ({ matiere_id, session_id }: { matiere_id: number, session_id: number }) => 
+      createExamen(matiere_id, session_id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['examens'] });
+      toast({
+        title: "Examen créé",
+        description: `L'examen a été créé avec succès.`,
+      });
+      setIsDialogOpen(false);
+      resetForm();
+    },
+    onError: (error) => {
+      console.error("Erreur lors de la création d'un examen:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la création de l'examen.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const createDevoirMutation = useMutation({
+    mutationFn: ({ matiere_id, session_id }: { matiere_id: number, session_id: number }) => 
+      createDevoir(matiere_id, session_id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['devoirs'] });
+      toast({
+        title: "Devoir créé",
+        description: `Le devoir a été créé avec succès.`,
+      });
+      setIsDialogOpen(false);
+      resetForm();
+    },
+    onError: (error) => {
+      console.error("Erreur lors de la création d'un devoir:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la création du devoir.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Combine and filter evaluations
+  const allEvaluations = [...examens, ...devoirs].map(eval => ({
+    ...eval,
+    type: examens.some(ex => ex.id === eval.id) ? "examen" : "devoir"
+  }));
+
+  const filteredEvaluations = allEvaluations.filter(eval => {
+    return (filterSemester === "all" || eval.session_id.toString() === filterSemester) &&
+           (filterType === "all" || eval.type === filterType);
+  });
+
+  // Reset form fields
+  const resetForm = () => {
     setExamTitle("");
     setExamDate("");
+    setExamSemester("");
+    setExamClass("");
+    setExamSubject("");
   };
 
-  const handleDeleteExam = (id: number) => {
+  // Handle form submission
+  const handleCreateEvaluation = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const matiere_id = parseInt(examSubject);
+    const session_id = parseInt(examSemester);
+    
+    if (!matiere_id || !session_id) {
+      toast({
+        title: "Erreur de validation",
+        description: "Veuillez compléter tous les champs requis.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (examType === "examen") {
+      createExamenMutation.mutate({ matiere_id, session_id });
+    } else {
+      createDevoirMutation.mutate({ matiere_id, session_id });
+    }
+  };
+
+  // Handle deletion
+  const handleDeleteEvaluation = (id: number, type: string) => {
+    // This would be implemented with a delete API call
     toast({
       title: "Suppression",
       description: "L'évaluation a été supprimée avec succès.",
     });
+    
+    // Invalidate queries to refresh data
+    if (type === "examen") {
+      queryClient.invalidateQueries({ queryKey: ['examens'] });
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['devoirs'] });
+    }
   };
-
-  const filteredExams = examens.filter(exam => {
-    return (filterSemester === "all" || exam.semestre === filterSemester) &&
-           (filterType === "all" || exam.type === filterType);
-  });
 
   // Filter matières based on selected classe
   const filteredSubjects = matieres.filter(
-    matiere => matiere.classe === examClass
+    matiere => !examClass || matiere.classe === examClass
   );
+
+  // Get unique class names from matières
+  const classes = Array.from(new Set(matieres.map(matiere => matiere.classe)))
+    .filter(Boolean)
+    .map(className => ({ id: className, nom: className }));
 
   return (
     <DashboardLayout>
@@ -106,8 +197,9 @@ const Examens = () => {
                   onChange={(e) => setFilterSemester(e.target.value)}
                 >
                   <option value="all">Tous les semestres</option>
-                  <option value="Semestre 1">Semestre 1</option>
-                  <option value="Semestre 2">Semestre 2</option>
+                  {semestres.map((sem) => (
+                    <option key={sem.id} value={sem.id.toString()}>{sem.titre}</option>
+                  ))}
                 </select>
               </div>
               
@@ -126,7 +218,7 @@ const Examens = () => {
               </div>
               
               <div className="ml-auto">
-                <Dialog>
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                   <DialogTrigger asChild>
                     <Button className="bg-estim-600 hover:bg-estim-700">
                       Créer une évaluation
@@ -139,7 +231,7 @@ const Examens = () => {
                         Ajoutez un examen ou un devoir au calendrier.
                       </DialogDescription>
                     </DialogHeader>
-                    <form onSubmit={handleCreateExam}>
+                    <form onSubmit={handleCreateEvaluation}>
                       <div className="space-y-4 py-4">
                         <div className="space-y-2">
                           <Label htmlFor="exam-type">Type d'évaluation</Label>
@@ -155,17 +247,6 @@ const Examens = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="exam-title">Titre</Label>
-                          <Input
-                            id="exam-title"
-                            value={examTitle}
-                            onChange={(e) => setExamTitle(e.target.value)}
-                            placeholder="Examen Final / Devoir Surveillé"
-                            required
-                          />
-                        </div>
-
-                        <div className="space-y-2">
                           <Label htmlFor="exam-semester">Semestre</Label>
                           <select
                             id="exam-semester"
@@ -176,20 +257,9 @@ const Examens = () => {
                           >
                             <option value="">Sélectionner un semestre</option>
                             {semestres.map((sem) => (
-                              <option key={sem.id} value={sem.nom}>{sem.nom}</option>
+                              <option key={sem.id} value={sem.id.toString()}>{sem.titre}</option>
                             ))}
                           </select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="exam-date">Date</Label>
-                          <Input
-                            id="exam-date"
-                            type="date"
-                            value={examDate}
-                            onChange={(e) => setExamDate(e.target.value)}
-                            required
-                          />
                         </div>
 
                         <div className="space-y-2">
@@ -220,14 +290,20 @@ const Examens = () => {
                           >
                             <option value="">Sélectionner une matière</option>
                             {filteredSubjects.map((subj) => (
-                              <option key={subj.id} value={subj.nom}>{subj.nom}</option>
+                              <option key={subj.id} value={subj.id.toString()}>{subj.nom}</option>
                             ))}
                           </select>
                         </div>
                       </div>
                       <DialogFooter>
-                        <Button type="submit" className="bg-estim-600 hover:bg-estim-700">
-                          Créer l'évaluation
+                        <Button 
+                          type="submit" 
+                          className="bg-estim-600 hover:bg-estim-700"
+                          disabled={createExamenMutation.isPending || createDevoirMutation.isPending}
+                        >
+                          {createExamenMutation.isPending || createDevoirMutation.isPending 
+                            ? "Chargement..." 
+                            : "Créer l'évaluation"}
                         </Button>
                       </DialogFooter>
                     </form>
@@ -242,54 +318,41 @@ const Examens = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Type</TableHead>
-                    <TableHead>Titre</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Semestre</TableHead>
-                    <TableHead>Classe</TableHead>
                     <TableHead>Matière</TableHead>
+                    <TableHead>Semestre</TableHead>
                     <TableHead className="w-[100px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredExams.length === 0 ? (
+                  {filteredEvaluations.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-6 text-gray-500">
+                      <TableCell colSpan={4} className="text-center py-6 text-gray-500">
                         Aucune évaluation trouvée
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredExams.map((exam) => (
-                      <TableRow key={exam.id}>
+                    filteredEvaluations.map((eval) => (
+                      <TableRow key={`${eval.type}-${eval.id}`}>
                         <TableCell>
                           <span
                             className={`px-2 py-1 rounded-full text-xs ${
-                              exam.type === "examen"
+                              eval.type === "examen"
                                 ? "bg-purple-100 text-purple-800"
                                 : "bg-blue-100 text-blue-800"
                             }`}
                           >
-                            {exam.type === "examen" ? "Examen" : "Devoir"}
+                            {eval.type === "examen" ? "Examen" : "Devoir"}
                           </span>
                         </TableCell>
-                        <TableCell>{exam.titre}</TableCell>
-                        <TableCell>{new Date(exam.date).toLocaleDateString("fr-FR")}</TableCell>
-                        <TableCell>{exam.semestre}</TableCell>
-                        <TableCell>{exam.classe}</TableCell>
-                        <TableCell>{exam.matiere}</TableCell>
+                        <TableCell>{eval.matiere}</TableCell>
+                        <TableCell>{eval.session}</TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-blue-500 hover:text-blue-700"
-                            >
-                              Modifier
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
                               className="text-red-500 hover:text-red-700"
-                              onClick={() => handleDeleteExam(exam.id)}
+                              onClick={() => handleDeleteEvaluation(eval.id, eval.type)}
                             >
                               Supprimer
                             </Button>
