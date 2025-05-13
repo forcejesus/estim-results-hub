@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/toast";
 import { useToast as useToastPrimitive } from "@radix-ui/react-toast";
 
-export const ToastContext = React.createContext<ReturnType<typeof useToastPrimitive> | null>(null);
+const ToastContext = React.createContext<ReturnType<typeof useToastPrimitive> | null>(null);
 
 export function ToastProviderWrapper({
   children,

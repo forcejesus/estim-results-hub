@@ -103,14 +103,14 @@ const Examens = () => {
   });
 
   // Combine and filter evaluations
-  const allEvaluations = [...examens, ...devoirs].map(eval => ({
-    ...eval,
-    type: examens.some(ex => ex.id === eval.id) ? "examen" : "devoir"
+  const allEvaluations = [...examens, ...devoirs].map(evaluation => ({
+    ...evaluation,
+    type: examens.some(ex => ex.id === evaluation.id) ? "examen" : "devoir"
   }));
 
-  const filteredEvaluations = allEvaluations.filter(eval => {
-    return (filterSemester === "all" || eval.session_id.toString() === filterSemester) &&
-           (filterType === "all" || eval.type === filterType);
+  const filteredEvaluations = allEvaluations.filter(evaluation => {
+    return (filterSemester === "all" || evaluation.session_id.toString() === filterSemester) &&
+           (filterType === "all" || evaluation.type === filterType);
   });
 
   // Reset form fields
@@ -331,28 +331,28 @@ const Examens = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredEvaluations.map((eval) => (
-                      <TableRow key={`${eval.type}-${eval.id}`}>
+                    filteredEvaluations.map((evaluation) => (
+                      <TableRow key={`${evaluation.type}-${evaluation.id}`}>
                         <TableCell>
                           <span
                             className={`px-2 py-1 rounded-full text-xs ${
-                              eval.type === "examen"
+                              evaluation.type === "examen"
                                 ? "bg-purple-100 text-purple-800"
                                 : "bg-blue-100 text-blue-800"
                             }`}
                           >
-                            {eval.type === "examen" ? "Examen" : "Devoir"}
+                            {evaluation.type === "examen" ? "Examen" : "Devoir"}
                           </span>
                         </TableCell>
-                        <TableCell>{eval.matiere}</TableCell>
-                        <TableCell>{eval.session}</TableCell>
+                        <TableCell>{evaluation.matiere}</TableCell>
+                        <TableCell>{evaluation.session}</TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               className="text-red-500 hover:text-red-700"
-                              onClick={() => handleDeleteEvaluation(eval.id, eval.type)}
+                              onClick={() => handleDeleteEvaluation(evaluation.id, evaluation.type)}
                             >
                               Supprimer
                             </Button>
