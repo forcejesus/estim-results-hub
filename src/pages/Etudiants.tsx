@@ -8,6 +8,7 @@ import { fetchEtudiants, fetchClasses } from "@/services/etudiantService";
 import { useStudentFilter } from "@/hooks/use-student-filter";
 import StudentsFilter from "@/components/students/StudentsFilter";
 import StudentsTable from "@/components/students/StudentsTable";
+import StudentMenu from "@/components/students/StudentMenu";
 
 const Etudiants = () => {
   const { toast } = useToast();
@@ -66,6 +67,7 @@ const Etudiants = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Gestion des étudiants</h1>
+          <StudentMenu students={filteredStudents} classes={classes} />
         </div>
 
         <Card>
