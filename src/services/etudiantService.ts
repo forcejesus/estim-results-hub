@@ -120,7 +120,7 @@ export const importEtudiantsFromFile = async (file: File, classes: Classe[]): Pr
   });
 };
 
-// Exporter les étudiants en Excel (exportation complète)
+// Exporter les étudiants en Excel
 export const exportEtudiantsToExcel = (etudiants: Etudiant[], classes: Classe[]): void => {
   // Préparer les données pour l'export
   const exportData = etudiants.map(etudiant => {
@@ -142,27 +142,4 @@ export const exportEtudiantsToExcel = (etudiants: Etudiant[], classes: Classe[])
   // Générer et télécharger le fichier
   const date = new Date().toISOString().split('T')[0];
   XLSX.writeFile(workbook, `etudiants_${date}.xlsx`);
-};
-
-// Exporter les étudiants pour les notes
-export const exportEtudiantsForNotes = (etudiants: Etudiant[], classes: Classe[]): void => {
-  // Préparer les données pour l'export (format simplifié pour les notes)
-  const exportData = etudiants.map(etudiant => {
-    const classe = classes.find(c => c.id === etudiant.classe);
-    return {
-      'Nom et Prénom': etudiant.nom_prenom,
-      'Matricule': etudiant.matricule,
-      'Classe': classe ? classe.nom : '',
-      'Note': '' // Colonne vide à remplir manuellement
-    };
-  });
-  
-  // Créer une nouvelle feuille de calcul
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Notes Etudiants');
-  
-  // Générer et télécharger le fichier
-  const date = new Date().toISOString().split('T')[0];
-  XLSX.writeFile(workbook, `notes_etudiants_${date}.xlsx`);
 };

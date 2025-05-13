@@ -1,130 +1,133 @@
 
-// utils/auth.ts
-import axios from 'axios';
-import jwtDecode from 'jwt-decode';
+import axios from "axios";
+import jwtDecode, { JwtPayload } from "jwt-decode";
+import { toast } from "@/components/ui/use-toast";
 
-// API instance with authentication header - Using a mock baseURL for development
+// Create axios instance with base URL
 export const api = axios.create({
-  baseURL: '/api', // URL relative pour éviter les erreurs de connexion
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  baseURL: "https://gestion.estim-online.com",
 });
 
-// Ajout du token dans les requêtes
-api.interceptors.request.use(
-  (config) => {
-    const token = getToken();
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Interface pour les données du token JWT
-interface JwtPayload {
-  id: number;
+// Interface for auth tokens
+export interface AuthTokens {
   username: string;
-  role: string;
-  iat: number;
-  exp: number;
+  access: string;
+  refresh: string;
 }
 
-// Fonction pour récupérer le token JWT depuis le localStorage
-export const getToken = () => {
-  return localStorage.getItem('token');
+// Extended JWT payload interface with optional username
+interface JwtUserPayload extends JwtPayload {
+  user_id?: string;
+  username?: string;
+}
+
+// Login function
+export const login = async (username: string, password: string): Promise<AuthTokens> => {
+  try {
+    const response = await api.post<AuthTokens>('/api/auth/token/pair', {
+      username,
+      password
+    });
+    
+    // Store tokens and user info
+    localStorage.setItem('auth', JSON.stringify(response.data));
+    
+    // Set up axios interceptor with new token
+    setupAxiosInterceptors(response.data.access);
+    
+    return response.data;
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
 };
 
-// Fonction pour vérifier si l'utilisateur est authentifié
-export const isAuthenticated = () => {
-  const token = getToken();
-  // Vérifie si le token existe
-  return !!token;
-};
-
-// Fonction pour gérer la déconnexion de l'utilisateur
+// Logout function
 export const logout = () => {
-  // Supprime le token du localStorage
-  localStorage.removeItem('token');
-  // Redirige vers la page de connexion
+  localStorage.removeItem('auth');
   window.location.href = '/';
 };
 
-// Fonction pour récupérer les infos de l'utilisateur depuis le token JWT
-export const getUserInfo = (): JwtPayload | null => {
-  const token = getToken();
-  if (!token) return null;
+// Check if user is authenticated
+export const isAuthenticated = (): boolean => {
+  const auth = localStorage.getItem('auth');
+  
+  if (!auth) return false;
   
   try {
-    return jwtDecode<JwtPayload>(token);
+    const { access } = JSON.parse(auth) as AuthTokens;
+    const decoded = jwtDecode<JwtUserPayload>(access);
+    
+    // Check if token is expired
+    const currentTime = Date.now() / 1000;
+    if (decoded.exp && decoded.exp < currentTime) {
+      // Token expired
+      logout();
+      return false;
+    }
+    
+    return true;
   } catch (error) {
-    console.error('Erreur lors du décodage du token JWT:', error);
+    // Invalid token
+    logout();
+    return false;
+  }
+};
+
+// Get user info from token
+export const getUserInfo = (): JwtUserPayload | null => {
+  const auth = localStorage.getItem('auth');
+  
+  if (!auth) return null;
+  
+  try {
+    const { access } = JSON.parse(auth) as AuthTokens;
+    return jwtDecode<JwtUserPayload>(access);
+  } catch (error) {
     return null;
   }
 };
 
-// Fonction pour initialiser l'authentification
-export const initializeAuth = () => {
-  // Vérifier si le token est expiré
-  const token = getToken();
+// Setup axios interceptors
+export const setupAxiosInterceptors = (token: string) => {
+  // Request interceptor to add token to headers
+  api.interceptors.request.use(
+    (config) => {
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
   
-  if (token) {
-    try {
-      const decoded = jwtDecode<JwtPayload>(token);
-      const currentTime = Date.now() / 1000;
-      
-      if (decoded.exp < currentTime) {
-        // Si le token est expiré, déconnecter l'utilisateur
-        console.log('Token expiré, déconnexion automatique');
+  // Response interceptor to handle unauthorized errors
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error?.response?.status === 401) {
+        toast({
+          title: "Session expirée",
+          description: "Votre session a expiré, veuillez vous reconnecter.",
+          variant: "destructive",
+        });
         logout();
       }
+      return Promise.reject(error);
+    }
+  );
+};
+
+// Initialize axios with token if user is already logged in
+export const initializeAuth = () => {
+  const auth = localStorage.getItem('auth');
+  
+  if (auth) {
+    try {
+      const { access } = JSON.parse(auth) as AuthTokens;
+      setupAxiosInterceptors(access);
     } catch (error) {
-      // Si le token est invalide, déconnecter l'utilisateur
-      console.error('Token invalide:', error);
-      logout();
+      console.error('Error initializing auth:', error);
     }
   }
-};
-
-// Fonction pour générer un token JWT simulé
-const generateMockToken = (username: string): string => {
-  // Création d'un payload simple
-  const payload = {
-    id: 1,
-    username: username,
-    role: 'admin',
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 // Expire dans 24h
-  };
-  
-  // Conversion en string Base64 (ce n'est pas un vrai JWT mais suffisant pour la démo)
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const content = btoa(JSON.stringify(payload));
-  const signature = btoa('signature'); // Fausse signature
-  
-  return `${header}.${content}.${signature}`;
-};
-
-// Fonction pour gérer la connexion de l'utilisateur - version simulée
-export const login = async (username: string, password: string): Promise<void> => {
-  // Simulation d'une vérification de connexion (pour démo seulement)
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Pour la démo, on accepte n'importe quelles identifiants
-      if (username && password) {
-        // Générer un token simulé
-        const token = generateMockToken(username);
-        
-        // Stocker le token dans le localStorage
-        localStorage.setItem('token', token);
-        
-        console.log('Utilisateur connecté:', username);
-        resolve();
-      } else {
-        reject(new Error('Nom d\'utilisateur et mot de passe requis'));
-      }
-    }, 500); // Délai de 500ms pour simuler une requête réseau
-  });
 };
