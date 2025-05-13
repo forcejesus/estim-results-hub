@@ -102,7 +102,7 @@ const Examens = () => {
     }
   });
 
-  // Combine and filter evaluations
+  // Combine and filter evaluations - Replacing 'eval' with 'evaluation' to avoid the reserved word
   const allEvaluations = [...examens, ...devoirs].map(evaluation => ({
     ...evaluation,
     type: examens.some(ex => ex.id === evaluation.id) ? "examen" : "devoir"

@@ -73,7 +73,7 @@ export const fetchMatieres = async (): Promise<Matiere[]> => {
 // Créer un nouvel examen
 export const createExamen = async (matiere_id: number, session_id: number): Promise<Evaluation> => {
   try {
-    const response = await api.post('/api/examen/examen', {
+    const response = await api.post('/api/examen/examens', {
       matiere_id,
       session_id
     });
