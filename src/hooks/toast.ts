@@ -8,15 +8,16 @@ type ToastOptions = {
   duration?: number;
 };
 
-export const toast = {
-  // Default toast function
-  (options: ToastOptions) {
-    return {
-      ...options,
-      id: Math.random().toString(36).substring(2, 9),
-    };
-  },
-  // Method variants
+// Create a proper toast function with methods
+const toastFunction = (options: ToastOptions) => {
+  return {
+    ...options,
+    id: Math.random().toString(36).substring(2, 9),
+  };
+};
+
+// Export the toast function with its methods
+export const toast = Object.assign(toastFunction, {
   default: (options: ToastOptions) => {
     return {
       ...options,
@@ -31,4 +32,4 @@ export const toast = {
       id: Math.random().toString(36).substring(2, 9),
     };
   },
-};
+});
