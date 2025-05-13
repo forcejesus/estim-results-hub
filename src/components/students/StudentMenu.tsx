@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { FileSpreadsheet, FileUp, Plus, FileDown, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,8 @@ interface StudentMenuProps {
 }
 
 const StudentMenu = ({ students, classes }: StudentMenuProps) => {
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  
   const handleExportComplete = () => {
     exportEtudiantsToExcel(students, classes);
   };
@@ -31,53 +34,60 @@ const StudentMenu = ({ students, classes }: StudentMenuProps) => {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          Étudiant
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 bg-white">
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger className="flex items-center">
-            <FileDown className="w-4 h-4 mr-2" />
-            <span>Exportation</span>
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent className="bg-white">
-            <DropdownMenuItem onClick={handleExportForNotes} className="cursor-pointer">
-              <Download className="w-4 h-4 mr-2" />
-              <span>Exporter pour les notes</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleExportComplete} className="cursor-pointer">
-              <FileSpreadsheet className="w-4 h-4 mr-2" />
-              <span>Exportation complète</span>
-            </DropdownMenuItem>
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            Étudiant
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56 bg-white">
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="flex items-center">
+              <FileDown className="w-4 h-4 mr-2" />
+              <span>Exportation</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="bg-white">
+              <DropdownMenuItem onClick={handleExportForNotes} className="cursor-pointer">
+                <Download className="w-4 h-4 mr-2" />
+                <span>Exporter pour les notes</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportComplete} className="cursor-pointer">
+                <FileSpreadsheet className="w-4 h-4 mr-2" />
+                <span>Exportation complète</span>
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
-              <FileUp className="w-4 h-4 mr-2" />
-              <span>Importation</span>
-            </DropdownMenuItem>
-          </DialogTrigger>
-          <ImportStudentDialog classes={classes} />
-        </Dialog>
+          <DropdownMenuItem 
+            onClick={() => setImportDialogOpen(true)} 
+            className="cursor-pointer"
+          >
+            <FileUp className="w-4 h-4 mr-2" />
+            <span>Importation</span>
+          </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
+          <DropdownMenuSeparator />
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
-              <Plus className="w-4 h-4 mr-2" />
-              <span>Ajouter un étudiant</span>
-            </DropdownMenuItem>
-          </DialogTrigger>
-          <AddStudentDialog classes={classes} />
-        </Dialog>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <Dialog>
+            <DialogTrigger asChild>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
+                <Plus className="w-4 h-4 mr-2" />
+                <span>Ajouter un étudiant</span>
+              </DropdownMenuItem>
+            </DialogTrigger>
+            <AddStudentDialog classes={classes} />
+          </Dialog>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      
+      {/* Import Dialog with proper Dialog wrapping */}
+      <ImportStudentDialog 
+        classes={classes} 
+        open={importDialogOpen} 
+        onOpenChange={setImportDialogOpen} 
+      />
+    </>
   );
 };
 

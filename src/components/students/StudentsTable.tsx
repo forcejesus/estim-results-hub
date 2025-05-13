@@ -1,11 +1,11 @@
 
+import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Edit, Trash2, MoreVertical, FileSpreadsheet, Plus, FileUp, FileDown } from "lucide-react";
 import { Etudiant, Classe, exportEtudiantsToExcel, exportEtudiantsForNotes } from "@/services/etudiantService";
-import { motion } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +27,8 @@ interface StudentsTableProps {
 }
 
 const StudentsTable = ({ students, classes, isLoading }: StudentsTableProps) => {
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  
   // Get class name by ID
   const getClassNameById = (id: number): string => {
     const foundClass = classes.find(c => c.id === id);
@@ -70,15 +72,13 @@ const StudentsTable = ({ students, classes, isLoading }: StudentsTableProps) => 
               </DropdownMenuSubContent>
             </DropdownMenuSub>
 
-            <Dialog>
-              <DialogTrigger asChild>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
-                  <FileUp className="w-4 h-4 mr-2" />
-                  <span>Importation</span>
-                </DropdownMenuItem>
-              </DialogTrigger>
-              <ImportStudentDialog classes={classes} />
-            </Dialog>
+            <DropdownMenuItem 
+              onClick={() => setImportDialogOpen(true)} 
+              className="cursor-pointer"
+            >
+              <FileUp className="w-4 h-4 mr-2" />
+              <span>Importation</span>
+            </DropdownMenuItem>
 
             <DropdownMenuSeparator />
 
@@ -94,6 +94,13 @@ const StudentsTable = ({ students, classes, isLoading }: StudentsTableProps) => 
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Import Dialog - Correctly handled with open state */}
+      <ImportStudentDialog 
+        classes={classes} 
+        open={importDialogOpen} 
+        onOpenChange={setImportDialogOpen} 
+      />
 
       {isLoading ? (
         <div className="text-center py-10">
