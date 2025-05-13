@@ -3,9 +3,9 @@
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 
-// API instance with authentication header
+// API instance with authentication header - Using a mock baseURL for development
 export const api = axios.create({
-  baseURL: 'http://localhost:3000', // Remplacer avec l'URL de votre API
+  baseURL: '/api', // URL relative pour éviter les erreurs de connexion
   headers: {
     'Content-Type': 'application/json'
   }
@@ -88,25 +88,43 @@ export const initializeAuth = () => {
   }
 };
 
-// Fonction pour gérer la connexion de l'utilisateur
+// Fonction pour générer un token JWT simulé
+const generateMockToken = (username: string): string => {
+  // Création d'un payload simple
+  const payload = {
+    id: 1,
+    username: username,
+    role: 'admin',
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 // Expire dans 24h
+  };
+  
+  // Conversion en string Base64 (ce n'est pas un vrai JWT mais suffisant pour la démo)
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const content = btoa(JSON.stringify(payload));
+  const signature = btoa('signature'); // Fausse signature
+  
+  return `${header}.${content}.${signature}`;
+};
+
+// Fonction pour gérer la connexion de l'utilisateur - version simulée
 export const login = async (username: string, password: string): Promise<void> => {
-  try {
-    const response = await axios.post('http://localhost:3000/api/auth/login', {
-      username,
-      password
-    });
-    
-    const { token } = response.data;
-    
-    // Stocker le token dans le localStorage
-    localStorage.setItem('token', token);
-    
-    // Vérifier que le token est valide
-    const decoded = jwtDecode<JwtPayload>(token);
-    console.log('Utilisateur connecté:', decoded.username);
-    
-  } catch (error) {
-    console.error('Erreur de connexion:', error);
-    throw error;
-  }
+  // Simulation d'une vérification de connexion (pour démo seulement)
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      // Pour la démo, on accepte n'importe quelles identifiants
+      if (username && password) {
+        // Générer un token simulé
+        const token = generateMockToken(username);
+        
+        // Stocker le token dans le localStorage
+        localStorage.setItem('token', token);
+        
+        console.log('Utilisateur connecté:', username);
+        resolve();
+      } else {
+        reject(new Error('Nom d\'utilisateur et mot de passe requis'));
+      }
+    }, 500); // Délai de 500ms pour simuler une requête réseau
+  });
 };
