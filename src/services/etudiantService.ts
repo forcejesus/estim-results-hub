@@ -41,6 +41,31 @@ export const fetchClasses = async (): Promise<Classe[]> => {
   }
 };
 
+// Changer le statut d'un étudiant
+export const toggleStudentStatus = async (matricule: string): Promise<Etudiant> => {
+  try {
+    const response = await api.get(`/api/etudiants/${matricule}/toggle/`);
+    return response.data;
+  } catch (error) {
+    console.error('Erreur lors du changement de statut:', error);
+    throw error;
+  }
+};
+
+// Mettre à jour les informations d'un étudiant
+export const updateEtudiant = async (
+  etudiantId: number,
+  data: { nom_prenom: string; classe_id: number }
+): Promise<Etudiant> => {
+  try {
+    const response = await api.post(`/api/etudiants/update/${etudiantId}/`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de l\'étudiant:', error);
+    throw error;
+  }
+};
+
 // Ajouter un nouvel étudiant
 export const addEtudiant = async (nom_prenom: string, classe_id: number): Promise<Etudiant> => {
   try {

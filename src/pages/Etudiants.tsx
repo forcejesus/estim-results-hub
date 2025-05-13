@@ -1,7 +1,7 @@
 
 import { useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
 import StudentTable from "@/components/students/StudentTable";
 import StudentFilters from "@/components/students/StudentFilters";
@@ -26,6 +26,7 @@ const Etudiants = () => {
     importStudentsMutation,
     handleExportExcel,
     handleExportSaisieExcel,
+    handleToggleStudentStatus,
     getClassNameById,
   } = useStudents();
 
@@ -104,6 +105,7 @@ const Etudiants = () => {
                 students={filteredStudents}
                 loading={etudiantsLoading || classesLoading}
                 getClassNameById={getClassNameById}
+                onToggleStatus={handleToggleStudentStatus}
               />
             </motion.div>
           </CardContent>

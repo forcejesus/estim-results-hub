@@ -1,6 +1,5 @@
 
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Classe } from "@/services/etudiantService";
 
@@ -31,13 +30,12 @@ const StudentFilters = ({
       </div>
       
       <div>
-        <Label htmlFor="class-filter" className="mr-2">Classe:</Label>
         <Select 
           value={selectedClass} 
           onValueChange={setSelectedClass}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Toutes les classes" />
+            <SelectValue placeholder="Classe" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Toutes les classes</SelectItem>

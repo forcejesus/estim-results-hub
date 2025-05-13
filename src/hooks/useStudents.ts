@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { 
   fetchEtudiants, 
   fetchClasses, 
@@ -9,6 +9,8 @@ import {
   importEtudiantsFromFile, 
   exportEtudiantsToExcel,
   exportEtudiantsSaisieExcel,
+  toggleStudentStatus,
+  updateEtudiant,
   Etudiant,
   Classe
 } from "@/services/etudiantService";
@@ -54,6 +56,52 @@ export const useStudents = () => {
       toast({
         title: "Erreur",
         description: "Impossible d'ajouter l'étudiant. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Toggle student status mutation
+  const toggleStudentStatusMutation = useMutation({
+    mutationFn: (matricule: string) => toggleStudentStatus(matricule),
+    onSuccess: () => {
+      toast({
+        title: "Statut modifié",
+        description: "Le statut de l'étudiant a été modifié avec succès.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['etudiants'] });
+    },
+    onError: (error) => {
+      console.error('Erreur lors du changement de statut:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier le statut de l'étudiant. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Update student mutation
+  const updateStudentMutation = useMutation({
+    mutationFn: ({ 
+      id, 
+      data 
+    }: { 
+      id: number; 
+      data: { nom_prenom: string; classe_id: number; } 
+    }) => updateEtudiant(id, data),
+    onSuccess: () => {
+      toast({
+        title: "Étudiant modifié",
+        description: "Les informations de l'étudiant ont été modifiées avec succès.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['etudiants'] });
+    },
+    onError: (error) => {
+      console.error('Erreur lors de la modification:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier l'étudiant. Veuillez réessayer.",
         variant: "destructive",
       });
     }
@@ -126,6 +174,11 @@ export const useStudents = () => {
     }
   };
 
+  // Toggle student status
+  const handleToggleStudentStatus = (matricule: string) => {
+    toggleStudentStatusMutation.mutate(matricule);
+  };
+
   // Get class name by ID
   const getClassNameById = (id: number): string => {
     const foundClass = classes.find(c => c.id === id);
@@ -146,8 +199,10 @@ export const useStudents = () => {
     classesError,
     addStudentMutation,
     importStudentsMutation,
+    updateStudentMutation,
     handleExportExcel,
     handleExportSaisieExcel,
+    handleToggleStudentStatus,
     getClassNameById,
   };
 };

@@ -10,9 +10,10 @@ interface StudentTableProps {
   students: Etudiant[];
   loading: boolean;
   getClassNameById: (id: number) => string;
+  onToggleStatus: (matricule: string) => void;
 }
 
-const StudentTable = ({ students, loading, getClassNameById }: StudentTableProps) => {
+const StudentTable = ({ students, loading, getClassNameById, onToggleStatus }: StudentTableProps) => {
   if (loading) {
     return (
       <div className="text-center py-10">
@@ -58,8 +59,8 @@ const StudentTable = ({ students, loading, getClassNameById }: StudentTableProps
                 <TableCell>
                   <Switch 
                     checked={student.actif} 
+                    onCheckedChange={() => onToggleStatus(student.matricule)}
                     className={student.actif ? "bg-green-600" : ""}
-                    disabled
                   />
                 </TableCell>
                 <TableCell>
@@ -68,7 +69,6 @@ const StudentTable = ({ students, loading, getClassNameById }: StudentTableProps
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                      disabled
                     >
                       <Edit className="h-4 w-4" />
                       <span className="sr-only">Modifier</span>
